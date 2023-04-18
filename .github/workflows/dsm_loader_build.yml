@@ -14,7 +14,7 @@ on:
 # <https://github.com/KFERMercer/OpenWrt-CI>
 #
 
-name:dsm_loader_build
+name: dsm
 
 on:
   push:
@@ -54,7 +54,53 @@ jobs:
 
     branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main" ]#
+# This is free software, lisence use MIT.....
+# 
+# Copyright (C) 2019 P3TERX <https://p3terx.com>
+# Copyright (C) 2019 KFERMercer <KFER.Mercer@gmail.com>
+# 
+# <https://github.com/KFERMercer/OpenWrt-CI>
+#
+
+name: dsm-loader_build
+
+on:
+  push:
+    branches: 
+      - master
+  schedule:
+      - cron:  '0 */3 * * *'
+  release:
+      types: [published]
+
+jobs:
+
+  build:
+
+    runs-on: debian-10
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@master
+        with:
+          ref: master
+
+      - name: 自动编译
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+           bash -c "$(curl -fsSL https://raw.githubusercontent.com/hopolcn/redpill-build/master/build-ds918-6.2.4.sh)"
+
+      - name: Upload firmware packages to wss
+        run: |
+          curl -sL https://git.io/file-transfer | sh
+          result=$(curl -s http://quan.suning.com/getSysTime.do)
+          datetime=${result:13:10}_${result:24:8}
+          zip -r -y -q -9 dsm_loader_$datetime.zip  /root/dsm/redpill-load/images/
+          ./transfer wss --no-progress ./*.zip
+
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
