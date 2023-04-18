@@ -14,7 +14,7 @@ on:
 # <https://github.com/KFERMercer/OpenWrt-CI>
 #
 
-name: dsm-loader_build
+name:dsm_loader_build
 
 on:
   push:
